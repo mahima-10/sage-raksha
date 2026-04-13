@@ -1,7 +1,7 @@
 # FRD-04: Alert Lifecycle
 
 **Feature:** End-to-end alert flow from detection to resolution
-**Version:** 1.0
+**Version:** 1.1
 **Last Updated:** 2026-04-13
 **Status:** Draft
 **Priority:** P0
@@ -29,23 +29,38 @@ caretakers can acknowledge the alert, call emergency services, and mark the fina
 ## Alert State Machine
 
 ```
-         ┌─────────┐
-         │  active  │ ← Created when fall is detected
-         └────┬─────┘
-              │ caretaker taps "I'm on my way"
-              ▼
-       ┌──────────────┐
-       │ acknowledged  │ ← Caretaker is responding
-       └──────┬───────┘
+              ┌─────────┐
+              │  active  │ ← Created when fall is detected
+              └────┬─────┘
+                   │
+         ┌─────────┼──────────────────┐
+         │         │                  │
+         │ (ack)   │ (timeout)        │ (quick dismiss)
+         ▼         ▼                  ▼
+  ┌──────────┐  ┌───────────┐   ┌──────────┐
+  │ acknowledged│  │ escalated │   │ resolved │
+  └──────┬───┘  └─────┬─────┘   │(false_alarm)│
+         │            │          └──────────┘
+         │    ┌───────┘
+         │    │ (caretaker acks after escalation)
+         │    ▼
+         │  ┌──────────────┐
+         │  │ acknowledged │
+         │  └──────┬───────┘
+         │         │
+         └────┬────┘
               │ caretaker marks outcome
               ▼
         ┌──────────┐
-        │ resolved  │ ← Outcome recorded (real_fall / false_alarm)
+        │ resolved │ ← Outcome: real_fall | false_alarm
         └──────────┘
 
-Escalation (parallel):
-  If no acknowledgment within X minutes → SMS sent to emergency contacts
-  Alert state stays active until a caretaker acknowledges
+Transitions:
+  active → acknowledged      Caretaker taps "I'm on my way"
+  active → escalated          No ack within X minutes, SMS sent
+  active → resolved           Quick dismiss as false alarm
+  escalated → acknowledged    Caretaker acks after escalation
+  acknowledged → resolved     Caretaker marks outcome
 ```
 
 ## Screen Layout: Active Alert
@@ -70,6 +85,10 @@ Escalation (parallel):
 │  Linked caretakers:          │
 │  • Ananya — not yet responded│
 │  • Rohan — not yet responded │
+│                              │
+│  ┌────────────────────────┐  │
+│  │  ✕ Dismiss False Alarm  │  │  ← Quick dismiss (no ack needed)
+│  └────────────────────────┘  │
 │                              │
 └──────────────────────────────┘
 ```
@@ -127,6 +146,12 @@ Escalation (parallel):
 - `resolvedAt`, `resolvedBy`, and `outcome` are recorded
 - Alert moves to history
 
+### FR-4.3a: Quick Dismiss (False Alarm)
+- From `active` state, caretaker can directly mark as false alarm without acknowledging
+- Skips the "I'm on my way" step for obvious false alarms
+- Alert transitions directly: active → resolved (outcome: false_alarm)
+- `resolvedAt`, `resolvedBy`, `outcome` are set; `acknowledgedAt`/`acknowledgedBy` remain unset
+
 ### FR-4.4: Emergency Call
 - "Call Emergency Services" button is always visible during active/acknowledged alerts
 - Tapping opens the phone dialer with a configurable emergency number
@@ -134,8 +159,11 @@ Escalation (parallel):
 
 ### FR-4.5: Escalation (Prototype Simulation)
 - If alert remains `active` for X minutes (configurable, default 5), escalation fires
+- Alert state transitions from `active` to `escalated`
+- `escalatedAt` timestamp is recorded
 - In prototype: a visual indicator shows "SMS would be sent to emergency contacts"
 - Lists which emergency contacts would receive the SMS
+- An escalated alert can still be acknowledged (escalated → acknowledged)
 - In production: actual Twilio SMS dispatch
 
 ### FR-4.6: Multi-Caretaker Visibility
@@ -169,11 +197,13 @@ Escalation (parallel):
 
 - [ ] Active alert screen displays with sensor info and time
 - [ ] "I'm on my way" transitions alert to acknowledged state
+- [ ] Quick dismiss transitions active alert directly to resolved (false_alarm)
 - [ ] Acknowledged screen shows who acknowledged and when
 - [ ] "Real Fall" and "False Alarm" buttons resolve the alert
 - [ ] Notes can be added during resolution
 - [ ] Emergency call button opens phone dialer
-- [ ] Escalation indicator appears after timeout
+- [ ] Escalation transitions alert to escalated state after timeout
+- [ ] Escalated alert can still be acknowledged
 - [ ] Resolved alerts disappear from active view
 
 ## Change Log
@@ -181,3 +211,4 @@ Escalation (parallel):
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
 | 1.0 | 2026-04-13 | Ivy & Caine | Initial alert lifecycle FRD |
+| 1.1 | 2026-04-13 | Ivy & Caine | Add escalated state; add quick dismiss path (active→resolved) |
