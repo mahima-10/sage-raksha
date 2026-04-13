@@ -1,7 +1,7 @@
 # FRD-08: Settings
 
 **Feature:** Account management and app configuration
-**Version:** 1.0
+**Version:** 1.1
 **Last Updated:** 2026-04-13
 **Status:** Draft
 **Priority:** P0
@@ -32,10 +32,11 @@ app management. Accessible from the Dashboard header or bottom tab.
 │  │ 9876543210                ││
 │  └──────────────────────────┘│
 ├──────────────────────────────┤
-│  Sensors                     │
+│  My Home                     │
 │  ┌──────────────────────────┐│
-│  │ 📱 Manage Sensors    →   ││
-│  │ 🔗 Pair New Sensor   →   ││
+│  │ 🏠 Mom's House           ││
+│  │ 📍 123 Main St           ││
+│  │ 🎟️ Invite Code: A5B8     ││  ← For other caretakers to join
 │  └──────────────────────────┘│
 ├──────────────────────────────┤
 │  Alerts                      │
@@ -65,9 +66,10 @@ app management. Accessible from the Dashboard header or bottom tab.
 - Display user name and phone number
 - Allow editing user name (inline or modal)
 
-### FR-8.2: Sensor Management
-- "Manage Sensors" → navigates to a list of paired sensors (can rename/remove)
-- "Pair New Sensor" → navigates to SensorPairingScreen
+### FR-8.2: My Home Section
+- Display home name and optional address
+- Allow editing home name/address
+- Show home's invite code for other caretakers to join the home
 
 ### FR-8.3: Alert Configuration
 - "Emergency Contacts" → navigates to Emergency Contacts screen (FRD-06)
@@ -94,7 +96,7 @@ app management. Accessible from the Dashboard header or bottom tab.
 
 ### Include
 - Account display and name editing
-- Sensor management navigation
+- My Home display and editing (name/address) and invite code
 - Emergency contacts navigation
 - Escalation timeout configuration
 - About, Privacy, Terms modals
@@ -109,7 +111,8 @@ app management. Accessible from the Dashboard header or bottom tab.
 
 - [ ] Account info displays correctly
 - [ ] User name can be edited
-- [ ] Sensor management links navigate correctly
+- [ ] My Home section correctly shows home info and invite code
+- [ ] Home name/address can be edited
 - [ ] Emergency contacts link navigates to FRD-06 screen
 - [ ] Escalation timeout can be configured
 - [ ] About/Privacy/Terms modals display content
@@ -120,3 +123,4 @@ app management. Accessible from the Dashboard header or bottom tab.
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
 | 1.0 | 2026-04-13 | Ivy & Caine | Initial settings FRD |
+| 1.1 | 2026-04-13 | Ivy & Caine | Replace Sensors section with My Home section |

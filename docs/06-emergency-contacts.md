@@ -1,7 +1,7 @@
 # FRD-06: Emergency Contacts
 
 **Feature:** Add and manage emergency contacts for SMS escalation
-**Version:** 1.0
+**Version:** 1.1
 **Last Updated:** 2026-04-13
 **Status:** Draft
 **Priority:** P0
@@ -25,6 +25,7 @@ contacts.
 ```
 ┌──────────────────────────────┐
 │  ← Back    Emergency Contacts│
+│            — Mom's House     │
 ├──────────────────────────────┤
 │                              │
 │  These contacts will receive │
@@ -50,7 +51,8 @@ contacts.
 ## Functional Requirements
 
 ### FR-6.1: Contact List
-- Display all emergency contacts
+- Screen header should show which home these contacts belong to (e.g., "Emergency Contacts — Mom's House")
+- Display all emergency contacts for the selected/current home
 - Each card shows: name, relationship, phone number
 - Edit and delete icons per contact
 
@@ -102,3 +104,4 @@ contacts.
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
 | 1.0 | 2026-04-13 | Ivy & Caine | Initial emergency contacts FRD |
+| 1.1 | 2026-04-13 | Ivy & Caine | Add home context to screen header |

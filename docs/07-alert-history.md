@@ -1,7 +1,7 @@
 # FRD-07: Alert History
 
 **Feature:** Monthly view of past alerts with filtering
-**Version:** 1.0
+**Version:** 1.1
 **Last Updated:** 2026-04-13
 **Status:** Draft
 **Priority:** P0
@@ -38,7 +38,7 @@ review past incidents, see outcomes (real fall vs false alarm), and filter by se
 ├──────────────────────────────┤
 │  Apr 8, 11:15 AM             │
 │  🟡 Mom's Bathroom — False   │
-│  Ack by Rohan in 2m          │
+│  Dismissed immediately       │
 ├──────────────────────────────┤
 │  Apr 3, 9:00 PM              │
 │  🔴 Hall Bathroom — Real Fall │
@@ -65,7 +65,7 @@ review past incidents, see outcomes (real fall vs false alarm), and filter by se
   - Date and time
   - Sensor label
   - Outcome (real fall / false alarm) with color indicator
-  - Time to acknowledgment
+  - Time to acknowledgment (or "Dismissed immediately" if quick-dismissed without ack)
   - Resolution notes (if any)
 - Sorted newest first within each month
 
@@ -114,3 +114,4 @@ review past incidents, see outcomes (real fall vs false alarm), and filter by se
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
 | 1.0 | 2026-04-13 | Ivy & Caine | Initial alert history FRD |
+| 1.1 | 2026-04-13 | Ivy & Caine | Handle quick-dismissed alerts lacking acknowledgment time |
