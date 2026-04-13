@@ -1,7 +1,7 @@
 # FRD-05: Sensor Detail & Management
 
 **Feature:** Detailed view and management of individual sensors
-**Version:** 1.0
+**Version:** 1.1
 **Last Updated:** 2026-04-13
 **Status:** Draft
 **Priority:** P0
@@ -18,7 +18,7 @@ specific sensor. It also allows renaming or removing the sensor.
 
 - As a caretaker, I want to see the full details of a sensor including its health and
   recent activity
-- As a caretaker, I want to see which other caretakers are also linked to this sensor
+- As a caretaker, I want to see which other caretakers are monitoring this home
 - As a caretaker, I want to see recent alerts from this specific sensor
 - As a caretaker, I want to rename the sensor if I set it up wrong
 - As a caretaker, I want to remove a sensor I no longer need
@@ -41,7 +41,7 @@ specific sensor. It also allows renaming or removing the sensor.
 │  │ 👤 Ananya  — 9876543210  ││
 │  │ 👤 Rohan   — 9876543211  ││
 │  └──────────────────────────┘│
-│  [+ Invite Caretaker]        │  ← Share invite link/code
+│  [+ Invite to Mom's House]   │  ← Invite is at Home level
 ├──────────────────────────────┤
 │  Recent Alerts               │
 │  ┌──────────────────────────┐│
@@ -63,15 +63,15 @@ specific sensor. It also allows renaming or removing the sensor.
 ## Functional Requirements
 
 ### FR-5.1: Sensor Info Section
-- Display: sensor label, room name, status (online/offline), last heartbeat (relative time),
+- Display: sensor label, status (online/offline), last heartbeat (relative time),
   paired date, sensor hardware ID
 - Online/offline indicator matches dashboard
 
 ### FR-5.2: Linked Caretakers
-- List all caretakers linked to this sensor
+- List all caretakers linked to this sensor's home
 - Show name and phone number for each
-- "Invite Caretaker" button (prototype: shows a share sheet or copy-to-clipboard with
-  a mock invite code)
+- "Invite to [Home Name]" button — inviting is at the Home level, not sensor level
+- Prototype: shows a mock invite code for the home
 
 ### FR-5.3: Recent Alerts
 - Show the 5 most recent alerts for this specific sensor
@@ -79,7 +79,7 @@ specific sensor. It also allows renaming or removing the sensor.
 - "View All History" link navigates to Alert History filtered to this sensor
 
 ### FR-5.4: Rename Sensor
-- Opens an inline edit or modal to change the sensor label and room name
+- Opens an inline edit or modal to change the sensor label
 - Updates the store immediately
 
 ### FR-5.5: Test Alert
@@ -89,7 +89,7 @@ specific sensor. It also allows renaming or removing the sensor.
 
 ### FR-5.6: Remove Sensor
 - Confirmation dialog: "Remove [sensor label]? You will stop receiving alerts for this sensor."
-- On confirm: removes sensor from store, navigates back to Dashboard
+- On confirm: removes sensor from store, navigates back to Sensor List
 - Does not delete alert history for the removed sensor
 
 ## Technical Specifications
@@ -129,3 +129,4 @@ specific sensor. It also allows renaming or removing the sensor.
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
 | 1.0 | 2026-04-13 | Ivy & Caine | Initial sensor detail FRD |
+| 1.1 | 2026-04-13 | Ivy & Caine | Remove roomName; invite is at Home level; rename changes label only |
