@@ -55,9 +55,9 @@ export const theme = {
 
   radius: {
     xs: 4,
-    sm: 6,
-    md: 10,        // card radius — crisper
-    lg: 14,
+    sm: 8,
+    md: 14,        // card radius (12-14px)
+    lg: 16,
     hero: 24,      // hero blocks, status rings
     full: 9999,
   },
@@ -93,13 +93,13 @@ export const theme = {
   },
 
   shadows: {
-    // Cards float without borders — elevation only
+    // Health dashboard styling — subtle or no shadow, relies on 1px border.
     card: {
       shadowColor: '#000',
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.25,
-      shadowRadius: 8,
-      elevation: 3,
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.03,
+      shadowRadius: 2,
+      elevation: 0,
     },
     hero: {
       shadowColor: '#000',

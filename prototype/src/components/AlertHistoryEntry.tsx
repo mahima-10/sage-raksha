@@ -20,7 +20,10 @@ export default function AlertHistoryEntry({ alert }: Props) {
   const accentColor = isReal ? colors.danger : colors.textMuted;
 
   return (
-    <View style={[styles.card, { backgroundColor: colors.surface, borderLeftColor: accentColor }]}>
+    <View style={[
+      styles.card,
+      { backgroundColor: colors.surface, borderLeftColor: accentColor, borderColor: colors.border }
+    ]}>
       <View style={styles.row}>
         <View style={styles.content}>
           <Text style={[styles.outcome, { color: isReal ? colors.danger : colors.textSecondary }]}>
@@ -42,7 +45,8 @@ const styles = StyleSheet.create({
   card: {
     borderRadius: theme.radius.md,
     marginBottom: theme.spacing.sm,
-    borderLeftWidth: 3,
+    borderLeftWidth: 4,
+    borderWidth: 1,
     padding: theme.spacing.lg,
     ...theme.shadows.card,
   },

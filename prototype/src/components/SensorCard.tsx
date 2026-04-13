@@ -24,7 +24,10 @@ export default function SensorCard({ sensor, onPress, alertCount }: Props) {
 
   return (
     <TouchableOpacity
-      style={[styles.card, { backgroundColor: colors.surface, borderLeftColor: statusColor }]}
+      style={[
+        styles.card,
+        { backgroundColor: colors.surface, borderLeftColor: statusColor, borderColor: colors.border }
+      ]}
       onPress={onPress}
       activeOpacity={0.82}
     >
@@ -57,7 +60,8 @@ const styles = StyleSheet.create({
   card: {
     borderRadius: theme.radius.md,
     marginBottom: theme.spacing.sm,
-    borderLeftWidth: 3,
+    borderLeftWidth: 4,
+    borderWidth: 1,
     paddingVertical: theme.spacing.lg,
     paddingRight: theme.spacing.lg,
     paddingLeft: theme.spacing.md,

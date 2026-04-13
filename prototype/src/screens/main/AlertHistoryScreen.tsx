@@ -1,5 +1,5 @@
 /**
- * ABOUTME: Alert history — chronological log with stats summary and left-border outcome accents.
+ * ABOUTME: Alert history — 2-column stats (light red/light grey) with compact white entries.
  * ABOUTME: Inter typography, Oura-style section labels.
  */
 
@@ -32,20 +32,16 @@ export default function AlertHistoryScreen() {
 
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
 
-        {/* Stats strip */}
+        {/* Stats grid */}
         {resolved.length > 0 && (
-          <View style={styles.statsRow}>
-            <View style={[styles.statBox, { backgroundColor: colors.surface }]}>
-              <Text style={[styles.statNum, { color: colors.danger }]}>{realFalls}</Text>
-              <Text style={[styles.statKey, { color: colors.textMuted }]}>REAL FALLS</Text>
+          <View style={styles.grid}>
+            <View style={[styles.gridCard, { backgroundColor: colors.cardLightRed }]}>
+              <Text style={[styles.gridLabel, { color: colors.textMuted }]}>REAL FALLS</Text>
+              <Text style={[styles.gridValue, { color: colors.danger }]}>{realFalls}</Text>
             </View>
-            <View style={[styles.statBox, { backgroundColor: colors.surface }]}>
-              <Text style={[styles.statNum, { color: colors.textSecondary }]}>{falseAlarms}</Text>
-              <Text style={[styles.statKey, { color: colors.textMuted }]}>FALSE ALARMS</Text>
-            </View>
-            <View style={[styles.statBox, { backgroundColor: colors.surface }]}>
-              <Text style={[styles.statNum, { color: colors.text }]}>{resolved.length}</Text>
-              <Text style={[styles.statKey, { color: colors.textMuted }]}>TOTAL</Text>
+            <View style={[styles.gridCard, { backgroundColor: colors.cardLightGrey }]}>
+              <Text style={[styles.gridLabel, { color: colors.textMuted }]}>FALSE ALARMS</Text>
+              <Text style={[styles.gridValue, { color: colors.text }]}>{falseAlarms}</Text>
             </View>
           </View>
         )}
@@ -73,12 +69,20 @@ const styles = StyleSheet.create({
   title: { fontFamily: theme.fonts.black, fontSize: theme.typography.size.display, letterSpacing: -0.5 },
   container: { padding: theme.spacing.xl, paddingTop: theme.spacing.md, paddingBottom: theme.spacing.massive },
 
-  statsRow: { flexDirection: 'row', gap: theme.spacing.sm, marginBottom: theme.spacing.section },
-  statBox: { flex: 1, borderRadius: theme.radius.md, padding: theme.spacing.lg, alignItems: 'center', ...theme.shadows.card },
-  statNum: { fontFamily: theme.fonts.black, fontSize: theme.typography.size.xxxl, letterSpacing: -0.5, marginBottom: 4 },
-  statKey: { fontFamily: theme.fonts.medium, fontSize: 10, letterSpacing: 0.8, textTransform: 'uppercase' },
+  grid: { flexDirection: 'row', gap: theme.spacing.md, marginBottom: theme.spacing.section },
+  gridCard: {
+    flex: 1,
+    borderRadius: theme.radius.md,
+    padding: theme.spacing.lg,
+    paddingVertical: theme.spacing.xl,
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.02)',
+  },
+  gridLabel: { fontFamily: theme.fonts.medium, fontSize: 11, letterSpacing: 0.8, textTransform: 'uppercase', marginBottom: 6 },
+  gridValue: { fontFamily: theme.fonts.bold, fontSize: theme.typography.size.xxxl, letterSpacing: -0.5 },
 
-  sectionLabel: { fontFamily: theme.fonts.medium, fontSize: theme.typography.size.xs, letterSpacing: 1.2, textTransform: 'uppercase', marginBottom: theme.spacing.md },
+  sectionLabel: { fontFamily: theme.fonts.medium, fontSize: 11, letterSpacing: 1.2, textTransform: 'uppercase', marginBottom: theme.spacing.md },
 
   empty: { paddingTop: theme.spacing.massive, alignItems: 'center' },
   emptyTitle: { fontFamily: theme.fonts.semibold, fontSize: theme.typography.size.lg, marginBottom: 6 },

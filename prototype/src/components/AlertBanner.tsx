@@ -32,12 +32,17 @@ export default function AlertBanner({ alert, onPress }: Props) {
     return () => pulse.stopAnimation();
   }, [alert.state]);
 
-  const isEscalated = alert.state === 'escalated';
-  const accentColor = isEscalated ? colors.danger : colors.primary;
+  // Use a calm red background for active alerts instead of raw white.
+  const isEscalatedOrActive = alert.state === 'active' || alert.state === 'escalated';
+  const bgColor = isEscalatedOrActive ? colors.cardLightRed : colors.surface;
+  const accentColor = isEscalatedOrActive ? colors.danger : colors.primary;
 
   return (
     <TouchableOpacity
-      style={[styles.banner, { backgroundColor: colors.surface, borderLeftColor: accentColor }]}
+      style={[
+        styles.banner,
+        { backgroundColor: bgColor, borderLeftColor: accentColor, borderColor: isEscalatedOrActive ? colors.dangerMuted : colors.border }
+      ]}
       onPress={onPress}
       activeOpacity={0.82}
     >
@@ -47,9 +52,9 @@ export default function AlertBanner({ alert, onPress }: Props) {
 
       <View style={styles.content}>
         <Text style={[styles.title, { color: accentColor }]}>
-          {isEscalated ? 'Escalated Alert' : alert.state === 'acknowledged' ? 'Alert Acknowledged' : 'Fall Detected'}
+          {isEscalatedOrActive ? 'Fall Detected' : 'Alert Acknowledged'}
         </Text>
-        <Text style={[styles.time, { color: colors.textSecondary }]}>
+        <Text style={[styles.time, { color: isEscalatedOrActive ? colors.danger : colors.textSecondary }]}>
           {formatDistanceToNow(new Date(alert.triggeredAt))} ago · Tap to respond
         </Text>
       </View>
@@ -65,7 +70,8 @@ const styles = StyleSheet.create({
     borderRadius: theme.radius.md,
     padding: theme.spacing.lg,
     marginBottom: theme.spacing.md,
-    borderLeftWidth: 3,
+    borderLeftWidth: 4,
+    borderWidth: 1,
     gap: theme.spacing.md,
     ...theme.shadows.card,
   },

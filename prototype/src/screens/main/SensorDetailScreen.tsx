@@ -1,6 +1,6 @@
 /**
- * ABOUTME: Sensor detail — status hero, labeled info table, caretakers, recent alerts, management actions.
- * ABOUTME: Inter typography, elevation-only cards, Oura-style section labels.
+ * ABOUTME: Sensor detail — soft colored status card hero without aggressive rings.
+ * ABOUTME: Clean label-value pairs, Inter typography, elevation-only cards.
  */
 
 import React, { useState } from 'react';
@@ -13,7 +13,7 @@ import { theme } from '../../constants/theme';
 import { useTheme } from '../../contexts/ThemeContext';
 import Button from '../../components/Button';
 import AlertHistoryEntry from '../../components/AlertHistoryEntry';
-import { ArrowLeft, Edit2, Check } from 'lucide-react-native';
+import { ArrowLeft, Edit2, Check, Wifi, WifiOff } from 'lucide-react-native';
 import { formatDistanceToNow } from 'date-fns';
 import { MOCK_LINKED_CARETAKERS } from '../../constants/mockData';
 
@@ -42,7 +42,10 @@ export default function SensorDetailScreen({ navigation, route }: any) {
   const isOnline = sensor.status === 'online';
   const home = getHomeById(sensor.homeId);
   const recentAlerts = getAlertsBySensorId(sensor.id).filter(a => a.state === 'resolved').slice(0, 3);
+  
+  const statusBg = isOnline ? colors.cardLightGreen : colors.cardLightGrey;
   const statusColor = isOnline ? colors.success : colors.textMuted;
+  const StatusIcon = isOnline ? Wifi : WifiOff;
 
   const handleSave = () => { if (label.trim().length > 0) { renameSensor(sensor.id, label.trim()); setIsEditing(false); } };
 
@@ -72,12 +75,10 @@ export default function SensorDetailScreen({ navigation, route }: any) {
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
 
         {/* Hero status block */}
-        <View style={[styles.heroBlock, { backgroundColor: colors.surface }]}>
-          <View style={[styles.statusRing, { borderColor: statusColor }]}>
-            <View style={[styles.statusOrb, { backgroundColor: statusColor }]} />
-          </View>
+        <View style={[styles.heroBlock, { backgroundColor: statusBg, borderColor: statusColor, borderLeftWidth: 3 }]}>
+          <StatusIcon size={28} color={statusColor} style={{ marginBottom: theme.spacing.sm }} />
           <Text style={[styles.statusLabel, { color: statusColor }]}>
-            {isOnline ? 'Sensor is Online' : 'Sensor is Offline'}
+            {isOnline ? 'Online & Monitoring' : 'Sensor is Offline'}
           </Text>
           <Text style={[styles.lastSeen, { color: colors.textSecondary }]}>
             Last contact {formatDistanceToNow(new Date(sensor.lastHeartbeat))} ago
@@ -86,8 +87,7 @@ export default function SensorDetailScreen({ navigation, route }: any) {
 
         {/* Info table */}
         <Text style={[styles.sectionLabel, { color: colors.textMuted }]}>SENSOR INFO</Text>
-        <View style={[styles.infoCard, { backgroundColor: colors.surface }]}>
-          {/* Label row */}
+        <View style={[styles.infoCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
           <View style={styles.infoRow}>
             <View style={styles.infoContent}>
               <Text style={[styles.infoKey, { color: colors.textMuted }]}>LABEL</Text>
@@ -124,9 +124,9 @@ export default function SensorDetailScreen({ navigation, route }: any) {
         {/* Caretakers */}
         <Text style={[styles.sectionLabel, { color: colors.textMuted }]}>LINKED CARETAKERS</Text>
         {MOCK_LINKED_CARETAKERS.map(ct => (
-          <View key={ct.id} style={[styles.caretakerRow, { backgroundColor: colors.surface }]}>
-            <View style={[styles.avatar, { backgroundColor: colors.primaryMuted }]}>
-              <Text style={[styles.avatarInitial, { color: colors.primary }]}>{ct.name.charAt(0)}</Text>
+          <View key={ct.id} style={[styles.caretakerRow, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+            <View style={[styles.avatar, { backgroundColor: colors.surfaceHighlight }]}>
+              <Text style={[styles.avatarInitial, { color: colors.text }]}>{ct.name.charAt(0)}</Text>
             </View>
             <Text style={[styles.caretakerName, { color: colors.text }]}>{ct.name}</Text>
           </View>
@@ -140,11 +140,12 @@ export default function SensorDetailScreen({ navigation, route }: any) {
           </>
         )}
 
-        <Button title="Test Emergency Alert" onPress={handleTestAlert} style={{ marginBottom: theme.spacing.xl }} />
-
-        <TouchableOpacity style={styles.removeBtn} onPress={handleRemove}>
-          <Text style={[styles.removeBtnText, { color: colors.textMuted }]}>Remove Sensor</Text>
-        </TouchableOpacity>
+        <View style={{ marginTop: theme.spacing.section }}>
+          <Button title="Test Emergency Alert" variant="outline" onPress={handleTestAlert} style={{ marginBottom: theme.spacing.lg }} />
+          <TouchableOpacity style={styles.removeBtn} onPress={handleRemove}>
+            <Text style={[styles.removeBtnText, { color: colors.textMuted }]}>Remove Sensor</Text>
+          </TouchableOpacity>
+        </View>
 
       </ScrollView>
     </SafeAreaView>
@@ -159,29 +160,32 @@ const styles = StyleSheet.create({
   headerTitle: { fontFamily: theme.fonts.semibold, fontSize: theme.typography.size.lg },
   container: { padding: theme.spacing.xl, paddingTop: theme.spacing.md, paddingBottom: theme.spacing.massive },
 
-  heroBlock: { borderRadius: theme.radius.hero, padding: theme.spacing.xxxl, alignItems: 'center', marginBottom: theme.spacing.section, ...theme.shadows.hero },
-  statusRing: { width: 100, height: 100, borderRadius: 50, borderWidth: 5, justifyContent: 'center', alignItems: 'center', marginBottom: theme.spacing.lg },
-  statusOrb: { width: 50, height: 50, borderRadius: 25 },
-  statusLabel: { fontFamily: theme.fonts.bold, fontSize: theme.typography.size.xl, marginBottom: 6 },
+  heroBlock: { 
+    borderRadius: theme.radius.md, 
+    padding: theme.spacing.xxxl, 
+    marginBottom: theme.spacing.section, 
+    borderWidth: 1,
+  },
+  statusLabel: { fontFamily: theme.fonts.bold, fontSize: theme.typography.size.xxl, letterSpacing: -0.5, marginBottom: 4 },
   lastSeen: { fontFamily: theme.fonts.regular, fontSize: theme.typography.size.sm },
 
-  sectionLabel: { fontFamily: theme.fonts.medium, fontSize: theme.typography.size.xs, letterSpacing: 1.2, textTransform: 'uppercase', marginBottom: theme.spacing.md, marginTop: theme.spacing.xxl },
+  sectionLabel: { fontFamily: theme.fonts.medium, fontSize: 11, letterSpacing: 1.2, textTransform: 'uppercase', marginBottom: theme.spacing.md, marginTop: theme.spacing.sm },
 
-  infoCard: { borderRadius: theme.radius.md, marginBottom: theme.spacing.xxl, ...theme.shadows.card },
+  infoCard: { borderRadius: theme.radius.md, marginBottom: theme.spacing.xxl, borderWidth: 1 },
   infoRow: { flexDirection: 'row', alignItems: 'center', padding: theme.spacing.lg },
   infoContent: { flex: 1 },
-  infoKey: { fontFamily: theme.fonts.medium, fontSize: theme.typography.size.xs, letterSpacing: 0.8, textTransform: 'uppercase', marginBottom: 5 },
-  infoValue: { fontFamily: theme.fonts.medium, fontSize: theme.typography.size.base },
+  infoKey: { fontFamily: theme.fonts.medium, fontSize: 11, letterSpacing: 0.8, textTransform: 'uppercase', marginBottom: 5 },
+  infoValue: { fontFamily: theme.fonts.semibold, fontSize: theme.typography.size.base },
   infoValueSub: { fontFamily: theme.fonts.regular, fontSize: theme.typography.size.sm },
   inlineInput: { fontFamily: theme.fonts.medium, fontSize: theme.typography.size.base, padding: 0, borderBottomWidth: 1, paddingBottom: 3 },
   divider: { height: 1, marginHorizontal: theme.spacing.lg },
 
-  caretakerRow: { flexDirection: 'row', alignItems: 'center', borderRadius: theme.radius.md, padding: theme.spacing.md, marginBottom: theme.spacing.sm, ...theme.shadows.card },
+  caretakerRow: { flexDirection: 'row', alignItems: 'center', borderRadius: theme.radius.md, padding: theme.spacing.md, marginBottom: theme.spacing.sm, borderWidth: 1 },
   avatar: { width: 36, height: 36, borderRadius: 18, justifyContent: 'center', alignItems: 'center', marginRight: theme.spacing.md },
   avatarInitial: { fontFamily: theme.fonts.bold, fontSize: theme.typography.size.base },
   caretakerName: { fontFamily: theme.fonts.medium, fontSize: theme.typography.size.base },
 
   removeBtn: { padding: theme.spacing.lg, alignItems: 'center' },
-  removeBtnText: { fontFamily: theme.fonts.medium, fontSize: theme.typography.size.base, textDecorationLine: 'underline' },
+  removeBtnText: { fontFamily: theme.fonts.medium, fontSize: theme.typography.size.sm, textDecorationLine: 'underline' },
   body: { fontFamily: theme.fonts.regular, fontSize: theme.typography.size.lg, marginBottom: theme.spacing.md },
 });

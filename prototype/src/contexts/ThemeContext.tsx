@@ -37,17 +37,23 @@ const darkColors = {
 
   border: '#1E2230',
   borderSubtle: '#252A38',
+
+  cardLightGreen: '#06200E',
+  cardLightBlue: '#0F172A',
+  cardLightRed: '#3A1515',
+  cardLightAmber: '#341E08',
+  cardLightGrey: '#1E2230',
 };
 
 // ─── Light palette ─────────────────────────────────────────────────────────────
 const lightColors = {
-  background: '#F2F3F5',
-  surface: '#FFFFFF',           // white cards float on grey bg via shadow only
-  surfaceHighlight: '#F0F1F4',
-  surfaceSubtle: '#E8EAF0',
+  background: '#F0F2F5', // soft grey background instead of pure white/slate
+  surface: '#FFFFFF',    // pure white cards
+  surfaceHighlight: '#F9FAFB',
+  surfaceSubtle: '#F3F4F6',
 
-  text: '#0A0C12',
-  textSecondary: '#4A5168',
+  text: '#111827',
+  textSecondary: '#4B5563',
   textMuted: '#9299AE',
   textInverse: '#FFFFFF',
 
@@ -68,8 +74,14 @@ const lightColors = {
   alertBanner: '#EEF2FE',
   alertBannerAccent: '#2563EB',
 
-  border: '#E4E6EE',
-  borderSubtle: '#ECEEF4',
+  border: '#E8EAED',
+  borderSubtle: '#F0F2F5',
+
+  cardLightGreen: '#F0FDF4',
+  cardLightBlue: '#EFF6FF',
+  cardLightRed: '#FEF2F2',
+  cardLightAmber: '#FFFBEB',
+  cardLightGrey: '#F9FAFB',
 };
 
 export type ThemeColors = typeof darkColors;
@@ -81,8 +93,8 @@ interface ThemeContextValue {
 }
 
 const ThemeContext = createContext<ThemeContextValue>({
-  colors: darkColors,
-  colorScheme: 'dark',
+  colors: lightColors,
+  colorScheme: 'light',
   toggleColorScheme: () => {},
 });
 

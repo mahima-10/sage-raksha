@@ -76,7 +76,7 @@ const styles = StyleSheet.create({
   appName: { fontFamily: theme.fonts.black, fontSize: theme.typography.size.display, letterSpacing: -1, marginBottom: theme.spacing.xs, textAlign: 'center' },
   appTagline: { fontFamily: theme.fonts.regular, fontSize: theme.typography.size.base, textAlign: 'center' },
   prompt: { fontFamily: theme.fonts.medium, fontSize: theme.typography.size.xs, letterSpacing: 1.2, textTransform: 'uppercase', marginBottom: theme.spacing.lg },
-  modeCard: { borderRadius: theme.radius.md, padding: theme.spacing.lg, marginBottom: theme.spacing.md, flexDirection: 'row', alignItems: 'center', ...theme.shadows.card },
+  modeCard: { borderRadius: theme.radius.md, padding: theme.spacing.lg, marginBottom: theme.spacing.md, flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: 'rgba(0,0,0,0.05)' },
   modeIcon: { width: 52, height: 52, borderRadius: 26, justifyContent: 'center', alignItems: 'center', marginRight: theme.spacing.md },
   modeText: { flex: 1, marginRight: theme.spacing.md },
   modeTitle: { fontFamily: theme.fonts.semibold, fontSize: theme.typography.size.lg, marginBottom: 4 },

@@ -29,9 +29,7 @@ export default function SensorListScreen({ navigation }: any) {
       </View>
 
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-        {sensors.length > 0 && (
-          <Text style={[styles.sectionLabel, { color: colors.textMuted }]}>ALL SENSORS</Text>
-        )}
+        <Text style={[styles.sectionLabel, { color: colors.textMuted, marginTop: theme.spacing.sm }]}>ALL SENSORS</Text>
         {sensors.map(sensor => (
           <SensorCard key={sensor.id} sensor={sensor}
             onPress={() => navigation.navigate('SensorDetail', { sensorId: sensor.id })} />

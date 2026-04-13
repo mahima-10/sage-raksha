@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
   title: { fontFamily: theme.fonts.black, fontSize: theme.typography.size.display, letterSpacing: -0.5 },
   container: { padding: theme.spacing.xl, paddingTop: 0, paddingBottom: theme.spacing.massive },
   groupLabel: { fontFamily: theme.fonts.medium, fontSize: theme.typography.size.xs, letterSpacing: 1.2, textTransform: 'uppercase', marginTop: theme.spacing.xxl, marginBottom: theme.spacing.sm, marginLeft: theme.spacing.sm },
-  group: { borderRadius: theme.radius.md, overflow: 'hidden', ...theme.shadows.card },
+  group: { borderRadius: theme.radius.md, overflow: 'hidden', borderWidth: 1, borderColor: 'rgba(0,0,0,0.05)' },
   row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: theme.spacing.lg, paddingHorizontal: theme.spacing.lg },
   rowLabel: { fontFamily: theme.fonts.regular, fontSize: theme.typography.size.base },
   rowRight: { flexDirection: 'row', alignItems: 'center' },

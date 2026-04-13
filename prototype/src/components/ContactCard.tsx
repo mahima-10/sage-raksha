@@ -20,7 +20,7 @@ export default function ContactCard({ contact, onDelete }: Props) {
   const { colors } = useTheme();
 
   return (
-    <View style={[styles.card, { backgroundColor: colors.surface }]}>
+    <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
       <View style={[styles.avatar, { backgroundColor: colors.primaryMuted }]}>
         <Text style={[styles.avatarText, { color: colors.primary }]}>{contact.name.charAt(0).toUpperCase()}</Text>
       </View>
@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
   card: {
     flexDirection: 'row', alignItems: 'center',
     borderRadius: theme.radius.md, padding: theme.spacing.lg,
-    marginBottom: theme.spacing.sm, ...theme.shadows.card,
+    marginBottom: theme.spacing.sm, borderWidth: 1, ...theme.shadows.card,
   },
   avatar: { width: 40, height: 40, borderRadius: 20, justifyContent: 'center', alignItems: 'center', marginRight: theme.spacing.md },
   avatarText: { fontFamily: theme.fonts.bold, fontSize: theme.typography.size.base },

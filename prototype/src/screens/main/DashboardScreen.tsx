@@ -1,6 +1,6 @@
 /**
- * ABOUTME: Dashboard — Oura Ring-inspired hero status ring + sensor list + recent activity.
- * ABOUTME: Hero card is the centerpiece showing home safety status at a glance.
+ * ABOUTME: Dashboard — Oura Ring-inspired 2-column metrics grid + sensor list + recent activity.
+ * ABOUTME: Clean, airy health dashboard aesthetic using soft colored cards.
  */
 
 import React from 'react';
@@ -16,9 +16,7 @@ import SensorCard from '../../components/SensorCard';
 import AlertBanner from '../../components/AlertBanner';
 import AlertHistoryEntry from '../../components/AlertHistoryEntry';
 import Button from '../../components/Button';
-import { Shield, ShieldAlert, WifiOff } from 'lucide-react-native';
-
-type SafetyStatus = 'safe' | 'alert' | 'offline';
+import { formatDistanceToNow } from 'date-fns';
 
 export default function DashboardScreen({ navigation }: any) {
   const { colors } = useTheme();
@@ -32,26 +30,23 @@ export default function DashboardScreen({ navigation }: any) {
   const activeAlerts = [...getEscalatedAlerts(), ...getActiveAlerts(), ...getAcknowledgedAlerts()];
   const sensors = getSensorsByHomeId(home?.id || '');
   const onlineCount = sensors.filter(s => s.status === 'online').length;
-  const offlineCount = sensors.length - onlineCount;
-
-  // Determine hero status
-  let heroStatus: SafetyStatus = 'safe';
-  if (activeAlerts.length > 0) heroStatus = 'alert';
-  else if (offlineCount > 0) heroStatus = 'offline';
-
-  const heroConfig = {
-    safe: { color: colors.success, label: 'All Safe', sub: `${onlineCount} sensor${onlineCount !== 1 ? 's' : ''} monitoring`, Icon: Shield },
-    alert: { color: colors.danger, label: 'Alert Active', sub: `${activeAlerts.length} alert${activeAlerts.length > 1 ? 's' : ''} need attention`, Icon: ShieldAlert },
-    offline: { color: colors.warning, label: '1 Sensor Offline', sub: 'Check your sensor connection', Icon: WifiOff },
-  }[heroStatus];
-
-  const HeroIcon = heroConfig.Icon;
 
   // Recent alert history (last 3 resolved)
-  const recentHistory = getAlertsByHomeId(home?.id || '')
-    .filter(a => a.state === 'resolved')
+  const allHistory = getAlertsByHomeId(home?.id || '').filter(a => a.state === 'resolved');
+  const recentHistory = [...allHistory]
     .sort((a, b) => new Date(b.triggeredAt).getTime() - new Date(a.triggeredAt).getTime())
     .slice(0, 3);
+
+  // Stats calculation
+  const today = new Date().toISOString().split('T')[0];
+  const allAlerts = [...activeAlerts, ...allHistory];
+  const alertsToday = allAlerts.filter(a => a.triggeredAt.startsWith(today)).length;
+  
+  const lastAlert = [...allAlerts].sort((a, b) => new Date(b.triggeredAt).getTime() - new Date(a.triggeredAt).getTime())[0];
+  const lastAlertTime = lastAlert ? formatDistanceToNow(new Date(lastAlert.triggeredAt), { addSuffix: true }) : '--';
+  
+  // Mock average response until we have real data measuring trigger -> ack times
+  const avgResponse = allHistory.length > 0 ? '45s' : '--';
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
@@ -65,24 +60,46 @@ export default function DashboardScreen({ navigation }: any) {
           </Text>
         </View>
 
-        {/* ─── Hero Status Ring ─────────────────────────────────────── */}
-        <View style={[styles.heroCard, { backgroundColor: colors.surface }]}>
-          <View style={[styles.ring, { borderColor: heroConfig.color }]}>
-            <HeroIcon size={36} color={heroConfig.color} />
-            <Text style={[styles.ringLabel, { color: heroConfig.color }]}>{heroConfig.label}</Text>
-          </View>
-          <Text style={[styles.heroSub, { color: colors.textSecondary }]}>{heroConfig.sub}</Text>
-        </View>
-
-        {/* ─── Active alert banners ──────────────────────────────────── */}
+        {/* ─── Active alert banners (Top priority) ──────────────────── */}
         {activeAlerts.length > 0 && (
-          <View style={styles.section}>
+          <View style={styles.activeAlertsBlock}>
             {activeAlerts.map(alert => (
               <AlertBanner key={alert.id} alert={alert}
                 onPress={() => navigation.navigate('ActiveAlert', { alertId: alert.id })} />
             ))}
           </View>
         )}
+
+        {/* ─── Metrics Grid ─────────────────────────────────────────── */}
+        <View style={styles.grid}>
+          <View style={styles.gridRow}>
+            {/* Card 1: Sensors Online */}
+            <View style={[styles.gridCard, { backgroundColor: colors.cardLightGreen, borderLeftWidth: 3, borderLeftColor: colors.success }]}>
+              <Text style={[styles.gridLabel, { color: colors.textMuted }]}>SENSORS ONLINE</Text>
+              <Text style={[styles.gridValue, { color: colors.success }]}>{onlineCount}/{sensors.length}</Text>
+            </View>
+            
+            {/* Card 2: Alerts Today */}
+            <View style={[styles.gridCard, { backgroundColor: colors.cardLightBlue }]}>
+              <Text style={[styles.gridLabel, { color: colors.textMuted }]}>ALERTS TODAY</Text>
+              <Text style={[styles.gridValue, { color: colors.text }]}>{alertsToday}</Text>
+            </View>
+          </View>
+          
+          <View style={styles.gridRow}>
+            {/* Card 3: Last Alert */}
+            <View style={[styles.gridCard, { backgroundColor: colors.cardLightAmber }]}>
+              <Text style={[styles.gridLabel, { color: colors.textMuted }]}>LAST ALERT</Text>
+              <Text style={[styles.gridValueTime, { color: colors.text }]}>{lastAlertTime}</Text>
+            </View>
+            
+            {/* Card 4: Avg Response */}
+            <View style={[styles.gridCard, { backgroundColor: colors.cardLightGrey }]}>
+              <Text style={[styles.gridLabel, { color: colors.textMuted }]}>AVG RESPONSE</Text>
+              <Text style={[styles.gridValue, { color: colors.text }]}>{avgResponse}</Text>
+            </View>
+          </View>
+        </View>
 
         {/* ─── Sensors ──────────────────────────────────────────────── */}
         <View style={styles.section}>
@@ -125,23 +142,45 @@ const styles = StyleSheet.create({
   homeName: { fontFamily: theme.fonts.black, fontSize: theme.typography.size.display, letterSpacing: -1, marginBottom: 4 },
   greetingSub: { fontFamily: theme.fonts.regular, fontSize: theme.typography.size.base },
 
-  // Hero card
-  heroCard: {
-    borderRadius: theme.radius.hero,
-    padding: theme.spacing.xxxl,
-    alignItems: 'center',
+  activeAlertsBlock: {
+    marginBottom: theme.spacing.xxl,
+  },
+
+  // Grid
+  grid: {
+    gap: theme.spacing.md,
     marginBottom: theme.spacing.section,
-    ...theme.shadows.hero,
   },
-  ring: {
-    width: 180, height: 180, borderRadius: 90,
-    borderWidth: 7,
-    justifyContent: 'center', alignItems: 'center',
-    marginBottom: theme.spacing.xl,
-    gap: theme.spacing.sm,
+  gridRow: {
+    flexDirection: 'row',
+    gap: theme.spacing.md,
   },
-  ringLabel: { fontFamily: theme.fonts.bold, fontSize: theme.typography.size.lg, textAlign: 'center' },
-  heroSub: { fontFamily: theme.fonts.regular, fontSize: theme.typography.size.sm, textAlign: 'center' },
+  gridCard: {
+    flex: 1,
+    borderRadius: theme.radius.md,
+    padding: theme.spacing.lg,
+    paddingVertical: theme.spacing.xl,
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.02)', // ultra subtle border to define edge
+  },
+  gridLabel: { 
+    fontFamily: theme.fonts.medium, 
+    fontSize: 11, // clean muted 11-12px
+    letterSpacing: 0.8, 
+    textTransform: 'uppercase', 
+    marginBottom: 6,
+  },
+  gridValue: { 
+    fontFamily: theme.fonts.bold, 
+    fontSize: theme.typography.size.xxxl, 
+    letterSpacing: -0.5,
+  },
+  gridValueTime: {
+    fontFamily: theme.fonts.bold, 
+    fontSize: theme.typography.size.xl, 
+    letterSpacing: -0.3,
+  },
 
   section: { marginBottom: theme.spacing.section },
   sectionLabel: {
@@ -155,7 +194,8 @@ const styles = StyleSheet.create({
   emptyBlock: {
     borderRadius: theme.radius.lg,
     padding: theme.spacing.xxl,
-    ...theme.shadows.card,
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.05)',
   },
   emptyTitle: { fontFamily: theme.fonts.semibold, fontSize: theme.typography.size.lg, marginBottom: 6 },
   emptyDesc: { fontFamily: theme.fonts.regular, fontSize: theme.typography.size.base, lineHeight: 22 },

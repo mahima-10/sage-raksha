@@ -83,7 +83,7 @@ export default function Button({
 
 const styles = StyleSheet.create({
   base: {
-    borderRadius: theme.radius.md,
+    borderRadius: theme.radius.full,
     alignItems: 'center',
     justifyContent: 'center',
   },
