@@ -1,7 +1,7 @@
 # FRD-03: Dashboard & Sensor Overview
 
 **Feature:** Main screen showing sensor status and active alert awareness
-**Version:** 1.0
+**Version:** 1.1
 **Last Updated:** 2026-04-13
 **Status:** Draft
 **Priority:** P0
@@ -54,12 +54,13 @@ to sensor details and alert management.
 ## Functional Requirements
 
 ### FR-3.1: Active Alert Banner
-- Displayed at the top of the dashboard when there's at least one `active` or
-  `acknowledged` alert
+- Displayed at the top of the dashboard when there's at least one `active`, `escalated`,
+  or `acknowledged` alert
 - Shows: sensor label, time since triggered, current alert state
-- Visual urgency: pulsing/glowing red background for `active`, amber for `acknowledged`
+- Visual urgency: pulsing/glowing red background for `active`/`escalated`,
+  amber for `acknowledged`
 - Tapping the banner navigates to the Active Alert screen
-- Hidden when no active alerts exist
+- Hidden when no active/escalated/acknowledged alerts exist
 
 ### FR-3.2: Sensor List
 - Displays all paired sensors as cards
@@ -104,17 +105,15 @@ to sensor details and alert management.
 ### Exclude
 - Real-time WebSocket updates (use polling simulation)
 - Push notification handling (Phase 2)
-- Sensor battery level display
 
 ## Acceptance Criteria
 
 - [ ] Dashboard shows all paired sensors with correct status
-- [ ] Active alert banner appears when an alert is active
+- [ ] Active alert banner appears when an alert is active or escalated
 - [ ] Banner shows correct sensor label and relative time
 - [ ] Tapping sensor card navigates to sensor detail
 - [ ] Tapping alert banner navigates to alert screen
 - [ ] Offline sensors are visually distinct from online sensors
-- [ ] "Add Sensor" button navigates to pairing flow
 - [ ] Empty state displays when no sensors are paired
 
 ## Change Log
@@ -122,3 +121,4 @@ to sensor details and alert management.
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
 | 1.0 | 2026-04-13 | Ivy & Caine | Initial dashboard FRD |
+| 1.1 | 2026-04-13 | Ivy & Caine | Alert banner covers escalated state; sensors managed via Sensors tab |

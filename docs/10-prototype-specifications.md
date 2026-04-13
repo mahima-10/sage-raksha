@@ -1,7 +1,7 @@
 # FRD-10: Prototype Specifications
 
 **Feature:** Defines the exact scope and boundaries of the Phase 1 prototype
-**Version:** 1.0
+**Version:** 1.1
 **Last Updated:** 2026-04-13
 **Status:** Draft
 **Priority:** P1
@@ -27,13 +27,15 @@ feedback on the core flows before committing to backend architecture.
 |---|--------|-----|----------------|
 | 1 | Mode Selection | FRD-02 | Auth stack |
 | 2 | Phone Auth (OTP) | FRD-02 | Auth stack |
-| 3 | Sensor Pairing | FRD-02 | Auth stack / Settings |
-| 4 | Dashboard | FRD-03 | Bottom tab: Home |
-| 5 | Active Alert | FRD-04 | Modal / Full screen |
-| 6 | Sensor Detail | FRD-05 | Stack from Dashboard |
-| 7 | Emergency Contacts | FRD-06 | Bottom tab: Contacts OR Settings drill-down |
-| 8 | Alert History | FRD-07 | Bottom tab: History |
-| 9 | Settings | FRD-08 | Bottom tab: Settings |
+| 3 | Create Home | FRD-02 | Auth stack |
+| 4 | Sensor Pairing | FRD-02 | Auth stack / Sensors tab |
+| 5 | Dashboard | FRD-03 | Bottom tab: Home |
+| 6 | Active Alert | FRD-04 | Modal / Full screen |
+| 7 | Sensor List | FRD-03 | Bottom tab: Sensors |
+| 8 | Sensor Detail | FRD-05 | Stack from Sensors tab |
+| 9 | Alert History | FRD-07 | Bottom tab: History |
+| 10 | Settings | FRD-08 | Bottom tab: Settings |
+| 11 | Emergency Contacts | FRD-06 | Drill-down from Settings |
 
 ### Navigation Structure
 
@@ -42,30 +44,33 @@ Root Stack
 ├── Auth Stack (before login)
 │   ├── ModeSelectionScreen
 │   ├── PhoneAuthScreen
+│   ├── CreateHomeScreen
 │   └── SensorPairingScreen
 │
 └── Main Tabs (after login)
     ├── Home Tab (Stack)
-    │   ├── DashboardScreen
-    │   └── SensorDetailScreen
+    │   └── DashboardScreen (with active alert banner)
+    ├── Sensors Tab (Stack)
+    │   ├── SensorListScreen
+    │   ├── SensorDetailScreen
+    │   └── SensorPairingScreen (add new sensor)
     ├── History Tab
     │   └── AlertHistoryScreen
-    ├── Contacts Tab
-    │   └── EmergencyContactsScreen
     └── Settings Tab (Stack)
-        ├── SettingsScreen
-        └── SensorPairingScreen (add new sensor)
+        ├── SettingsScreen (profile, notification prefs)
+        └── EmergencyContactsScreen
 
 Active Alert → presented as modal over Main Tabs
 ```
 
 ### Mock Data
 
-- 2 sensors (one online, one offline)
+- 1 home ("Mom's House")
+- 2 sensors (one online, one offline) belonging to the home
 - 5 resolved alerts across both sensors (mix of real and false)
 - 1 active alert (for testing the alert flow)
-- 2 emergency contacts
-- 1 authenticated user
+- 2 emergency contacts belonging to the home
+- 1 authenticated user linked to the home
 
 ### Simulated Features
 
@@ -127,3 +132,4 @@ Active Alert → presented as modal over Main Tabs
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
 | 1.0 | 2026-04-13 | Ivy & Caine | Initial prototype spec |
+| 1.1 | 2026-04-13 | Ivy & Caine | Add CreateHome to auth stack; restructure to 4 tabs (Home, Sensors, History, Settings); Emergency Contacts as Settings drill-down; add home to mock data |
