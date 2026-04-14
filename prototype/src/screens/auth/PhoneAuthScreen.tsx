@@ -1,11 +1,11 @@
 /**
  * ABOUTME: Phone auth — OTP entry with Inter typography, clean input styling.
- * ABOUTME: No card borders, elevation-only surfaces.
+ * ABOUTME: Connected to production FastAPI backend.
  */
 
 import React, { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { View, Text, StyleSheet, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, StyleSheet, TextInput, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import { useAuthStore } from '../../store/authStore';
 import { theme } from '../../constants/theme';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -21,18 +21,38 @@ export default function PhoneAuthScreen({ navigation }: Props) {
   const [otp, setOtp] = useState('');
   const [step, setStep] = useState<'phone' | 'otp'>('phone');
   const [loading, setLoading] = useState(false);
-  const { login } = useAuthStore();
+  
+  const { requestOtp, verifyOtp } = useAuthStore();
 
-  const handleSendOtp = () => {
+  const handleSendOtp = async () => {
     if (phone.length < 10) return;
     setLoading(true);
-    setTimeout(() => { setLoading(false); setStep('otp'); }, 1000);
+    try {
+      await requestOtp(phone);
+      setStep('otp');
+    } catch (error: any) {
+      console.error(error);
+      const message = error.response?.data?.detail?.message || 'Failed to send OTP. Please try again.';
+      Alert.alert('Error', message);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleVerify = () => {
-    if (otp.length < 4) return;
+  const handleVerify = async () => {
+    if (otp.length < 6) return;
     setLoading(true);
-    setTimeout(() => { setLoading(false); login(phone, otp); navigation.navigate('CreateHome'); }, 1000);
+    try {
+      await verifyOtp(phone, otp);
+      // navigation.navigate('CreateHome'); // Authenticated state in AppNavigator will handle switch
+    } catch (error: any) {
+      console.error(error);
+      const detail = error.response?.data?.detail;
+      const message = typeof detail === 'string' ? detail : detail?.message || 'Invalid OTP. Please try again.';
+      Alert.alert('Verification Failed', message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -46,7 +66,7 @@ export default function PhoneAuthScreen({ navigation }: Props) {
             {step === 'phone' ? 'Enter your\nmobile number' : 'Enter the\nOTP'}
           </Text>
           <Text style={[styles.sub, { color: colors.textSecondary }]}>
-            {step === 'phone' ? 'We\'ll send you a one-time code.' : `Code sent to +91 ${phone}`}
+            {step === 'phone' ? 'We\'ll send you a one-time code.' : `Enter the 6-digit code sent to +91 ${phone}`}
           </Text>
 
           {step === 'phone' ? (
@@ -60,17 +80,17 @@ export default function PhoneAuthScreen({ navigation }: Props) {
           ) : (
             <TextInput
               style={[styles.otpInput, { backgroundColor: colors.surfaceHighlight, borderColor: colors.border, color: colors.text }]}
-              placeholder="0 0 0 0" placeholderTextColor={colors.textMuted}
-              keyboardType="number-pad" maxLength={4} value={otp} onChangeText={setOtp} autoFocus />
+              placeholder="0 0 0 0 0 0" placeholderTextColor={colors.textMuted}
+              keyboardType="number-pad" maxLength={6} value={otp} onChangeText={setOtp} autoFocus />
           )}
 
           <Button title={step === 'phone' ? 'Send OTP →' : 'Verify & Continue →'}
             onPress={step === 'phone' ? handleSendOtp : handleVerify}
-            disabled={step === 'phone' ? phone.length < 10 : otp.length < 4}
+            disabled={step === 'phone' ? phone.length < 10 : otp.length < 6}
             loading={loading} style={styles.cta} />
 
           {step === 'otp' && (
-            <Button title="← Edit number" variant="ghost" onPress={() => setStep('phone')} />
+            <Button title="← Edit number" variant="ghost" onPress={() => setStep('phone')} disabled={loading} />
           )}
         </View>
       </KeyboardAvoidingView>
@@ -89,6 +109,6 @@ const styles = StyleSheet.create({
   prefix: { fontFamily: theme.fonts.semibold, fontSize: theme.typography.size.lg, paddingVertical: theme.spacing.lg, marginRight: theme.spacing.md },
   vDivider: { width: 1, height: 24, marginRight: theme.spacing.md },
   phoneInput: { flex: 1, fontFamily: theme.fonts.regular, fontSize: theme.typography.size.lg, paddingVertical: theme.spacing.lg },
-  otpInput: { textAlign: 'center', fontFamily: theme.fonts.black, fontSize: theme.typography.size.hero, letterSpacing: 12, paddingVertical: theme.spacing.xl, borderRadius: theme.radius.md, borderWidth: 1, marginBottom: theme.spacing.xxl },
+  otpInput: { textAlign: 'center', fontFamily: theme.fonts.black, fontSize: theme.typography.size.xl, letterSpacing: 12, paddingVertical: theme.spacing.xl, borderRadius: theme.radius.md, borderWidth: 1, marginBottom: theme.spacing.xxl },
   cta: { marginBottom: theme.spacing.md },
 });

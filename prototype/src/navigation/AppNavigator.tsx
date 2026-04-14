@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { View, ActivityIndicator } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types';
@@ -10,13 +11,27 @@ import ActiveAlertScreen from '../screens/main/ActiveAlertScreen';
 import { useAuthStore } from '../store/authStore';
 import { useHomeStore } from '../store/homeStore';
 import { useSensorStore } from '../store/sensorStore';
+import { useTheme } from '../contexts/ThemeContext';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function AppNavigator() {
-  const { isAuthenticated, user } = useAuthStore();
+  const { colors } = useTheme();
+  const { isAuthenticated, user, isRehydrating, restoreSession } = useAuthStore();
   const { getHomeById } = useHomeStore();
   const { getSensorsByHomeId } = useSensorStore();
+
+  useEffect(() => {
+    restoreSession();
+  }, []);
+
+  if (isRehydrating) {
+    return (
+      <View style={{ flex: 1, backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
+  }
 
   const isFullyOnboarded = 
     isAuthenticated && 

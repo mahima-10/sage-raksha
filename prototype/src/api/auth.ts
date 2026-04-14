@@ -49,6 +49,21 @@ export const verifyOtp = async (phone: string, otp: string): Promise<{ user: Use
   };
 };
 
+export const getMe = async (): Promise<User> => {
+  const response = await apiClient.get<BackendUser>('/users/me');
+  return mapBackendUserToUser(response.data);
+};
+
+export const updateMe = async (data: Partial<User>): Promise<User> => {
+  // Map frontend User fields back to backend snake_case if necessary
+  const backendData: any = {};
+  if (data.name !== undefined) backendData.name = data.name;
+  if (data.mode !== undefined) backendData.mode = data.mode;
+
+  const response = await apiClient.patch<BackendUser>('/users/me', backendData);
+  return mapBackendUserToUser(response.data);
+};
+
 export const refreshToken = async (token: string) => {
   const response = await apiClient.post<BackendRefreshTokenResponse>('/auth/refresh-token', {
     refresh_token: token,
