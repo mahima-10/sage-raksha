@@ -1,11 +1,12 @@
 import { create } from 'zustand';
-import { Alert, AlertOutcome } from '../types';
+import { Alert, AlertOutcome, AlertType } from '../types';
 import { MOCK_ALERTS } from '../constants/mockData';
 
 interface AlertState {
   alerts: Alert[];
-  
-  triggerAlert: (sensorId: string, homeId: string) => string;
+
+  triggerAlert: (sensorId: string, homeId: string, alertType?: AlertType) => string;
+  triggerStillnessAlert: (sensorId: string, homeId: string) => string;
   escalateAlert: (id: string) => void;
   acknowledgeAlert: (id: string, userId: string) => void;
   resolveAlert: (id: string, userId: string, outcome: AlertOutcome, notes?: string) => void;
@@ -20,17 +21,22 @@ interface AlertState {
 export const useAlertStore = create<AlertState>()((set, get) => ({
       alerts: MOCK_ALERTS,
 
-      triggerAlert: (sensorId, homeId) => {
+      triggerAlert: (sensorId, homeId, alertType = 'fall') => {
         const id = `a-${Date.now()}`;
         const newAlert: Alert = {
           id,
           sensorId,
           homeId,
+          alertType,
           state: 'active',
           triggeredAt: new Date().toISOString(),
         };
         set((state) => ({ alerts: [newAlert, ...state.alerts] }));
         return id;
+      },
+
+      triggerStillnessAlert: (sensorId, homeId) => {
+        return get().triggerAlert(sensorId, homeId, 'stillness');
       },
 
       escalateAlert: (id) => set((state) => ({

@@ -8,6 +8,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert as RNAlert, Switch } from 'react-native';
 import { useAuthStore } from '../../store/authStore';
 import { useHomeStore } from '../../store/homeStore';
+import { useSettingsStore } from '../../store/settingsStore';
 import { theme } from '../../constants/theme';
 import { useTheme } from '../../contexts/ThemeContext';
 import { ChevronRight } from 'lucide-react-native';
@@ -43,7 +44,16 @@ export default function SettingsScreen({ navigation }: any) {
   const { colors, colorScheme, toggleColorScheme } = useTheme();
   const { user, logout } = useAuthStore();
   const { getHomeById } = useHomeStore();
+  const { escalationTimeoutMinutes, setEscalationTimeout, stillnessTimeoutMinutes, setStillnessTimeout } = useSettingsStore();
   const home = getHomeById(user?.linkedHomeIds[0] || '');
+
+  const ESCALATION_OPTIONS = [2, 5, 10, 15, 20];
+  const STILLNESS_OPTIONS = [5, 10, 15, 20, 30];
+
+  const cycleOption = <T extends number>(current: T, options: T[], setter: (v: T) => void) => {
+    const next = options[(options.indexOf(current) + 1) % options.length];
+    setter(next);
+  };
 
   const handleLogout = () => {
     RNAlert.alert('Log Out', 'Are you sure?', [
@@ -76,6 +86,16 @@ export default function SettingsScreen({ navigation }: any) {
           <Row label="Emergency Contacts" showChevron colors={colors}
             onPress={() => navigation.navigate('EmergencyContacts')} />
           <Row label="Invite Caretaker" showChevron colors={colors} onPress={handleInvite} last />
+        </View>
+
+        <Text style={[styles.groupLabel, { color: colors.textMuted }]}>ALERTS</Text>
+        <View style={[styles.group, { backgroundColor: colors.surface }]}>
+          <Row label="Escalate if no response after"
+            value={`${escalationTimeoutMinutes} min`} colors={colors}
+            onPress={() => cycleOption(escalationTimeoutMinutes, ESCALATION_OPTIONS, setEscalationTimeout)} />
+          <Row label="Alert if no movement detected for"
+            value={`${stillnessTimeoutMinutes} min`} colors={colors} last
+            onPress={() => cycleOption(stillnessTimeoutMinutes, STILLNESS_OPTIONS, setStillnessTimeout)} />
         </View>
 
         <Text style={[styles.groupLabel, { color: colors.textMuted }]}>APPEARANCE</Text>

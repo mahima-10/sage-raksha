@@ -17,7 +17,15 @@ interface Props {
 export default function AlertHistoryEntry({ alert }: Props) {
   const { colors } = useTheme();
   const isReal = alert.outcome === 'real_fall';
-  const accentColor = isReal ? colors.danger : colors.textMuted;
+  const isStillness = alert.alertType === 'stillness';
+
+  // Stillness: amber border; fall: red for real, grey for false alarm.
+  const accentColor = isStillness
+    ? colors.warning
+    : (isReal ? colors.danger : colors.textMuted);
+
+  const typeLabel = isStillness ? 'Stillness' : 'Fall';
+  const typeLabelColor = isStillness ? colors.warning : (isReal ? colors.danger : colors.textSecondary);
 
   return (
     <View style={[
@@ -26,9 +34,12 @@ export default function AlertHistoryEntry({ alert }: Props) {
     ]}>
       <View style={styles.row}>
         <View style={styles.content}>
-          <Text style={[styles.outcome, { color: isReal ? colors.danger : colors.textSecondary }]}>
-            {isReal ? 'Real Fall' : 'False Alarm'}
-          </Text>
+          <View style={styles.typeRow}>
+            <Text style={[styles.typeTag, { color: typeLabelColor }]}>{typeLabel}</Text>
+            <Text style={[styles.outcome, { color: isReal ? colors.danger : colors.textSecondary }]}>
+              {isReal ? ' · Real Fall' : ' · False Alarm'}
+            </Text>
+          </View>
           <Text style={[styles.time, { color: colors.textMuted }]}>
             {format(new Date(alert.triggeredAt), 'MMM d, h:mm a')}
           </Text>
@@ -52,7 +63,9 @@ const styles = StyleSheet.create({
   },
   row: { flexDirection: 'row', alignItems: 'flex-start' },
   content: { flex: 1 },
-  outcome: { fontFamily: theme.fonts.semibold, fontSize: theme.typography.size.base, marginBottom: 4 },
+  typeRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 4 },
+  typeTag: { fontFamily: theme.fonts.bold, fontSize: theme.typography.size.sm },
+  outcome: { fontFamily: theme.fonts.regular, fontSize: theme.typography.size.sm },
   time: { fontFamily: theme.fonts.regular, fontSize: theme.typography.size.sm, marginBottom: 4 },
   notes: { fontFamily: theme.fonts.regular, fontSize: theme.typography.size.sm, fontStyle: 'italic', marginTop: 3 },
 });

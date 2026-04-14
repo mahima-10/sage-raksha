@@ -8,7 +8,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Animated } from 'react-native
 import { Alert } from '../types';
 import { theme } from '../constants/theme';
 import { useTheme } from '../contexts/ThemeContext';
-import { AlertCircle, ChevronRight } from 'lucide-react-native';
+import { AlertCircle, ChevronRight, Clock } from 'lucide-react-native';
 import { formatDistanceToNow } from 'date-fns';
 
 interface Props {
@@ -32,29 +32,43 @@ export default function AlertBanner({ alert, onPress }: Props) {
     return () => pulse.stopAnimation();
   }, [alert.state]);
 
-  // Use a calm red background for active alerts instead of raw white.
   const isEscalatedOrActive = alert.state === 'active' || alert.state === 'escalated';
-  const bgColor = isEscalatedOrActive ? colors.cardLightRed : colors.surface;
-  const accentColor = isEscalatedOrActive ? colors.danger : colors.primary;
+  const isStillness = alert.alertType === 'stillness';
+
+  // Stillness uses amber; fall uses red. Acknowledged/resolved states use neutral surface.
+  const bgColor = isEscalatedOrActive
+    ? (isStillness ? colors.cardLightAmber : colors.cardLightRed)
+    : colors.surface;
+  const accentColor = isEscalatedOrActive
+    ? (isStillness ? colors.warning : colors.danger)
+    : colors.primary;
+  const borderColor = isEscalatedOrActive
+    ? (isStillness ? colors.warningMuted : colors.dangerMuted)
+    : colors.border;
+  const BannerIcon = isStillness ? Clock : AlertCircle;
+
+  const bannerTitle = isEscalatedOrActive
+    ? (isStillness ? 'No movement detected' : 'Fall Detected')
+    : 'Alert Acknowledged';
 
   return (
     <TouchableOpacity
       style={[
         styles.banner,
-        { backgroundColor: bgColor, borderLeftColor: accentColor, borderColor: isEscalatedOrActive ? colors.dangerMuted : colors.border }
+        { backgroundColor: bgColor, borderLeftColor: accentColor, borderColor }
       ]}
       onPress={onPress}
       activeOpacity={0.82}
     >
       <Animated.View style={{ opacity: pulse }}>
-        <AlertCircle size={20} color={accentColor} />
+        <BannerIcon size={20} color={accentColor} />
       </Animated.View>
 
       <View style={styles.content}>
         <Text style={[styles.title, { color: accentColor }]}>
-          {isEscalatedOrActive ? 'Fall Detected' : 'Alert Acknowledged'}
+          {bannerTitle}
         </Text>
-        <Text style={[styles.time, { color: isEscalatedOrActive ? colors.danger : colors.textSecondary }]}>
+        <Text style={[styles.time, { color: isEscalatedOrActive ? accentColor : colors.textSecondary }]}>
           {formatDistanceToNow(new Date(alert.triggeredAt))} ago · Tap to respond
         </Text>
       </View>

@@ -1,8 +1,7 @@
 /**
- * ABOUTME: Active alert fullscreen — light airy aesthetic replacing the forced dark mode.
- * ABOUTME: Light red tinted background, rich danger text, clean stacked actions.
+ * ABOUTME: Active alert fullscreen — type-aware (fall vs stillness) urgency screen.
+ * ABOUTME: Fall uses red scheme; stillness uses amber scheme with clock icon.
  */
-
 import React, { useState, useRef, useEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Linking, TextInput, Animated } from 'react-native';
@@ -10,10 +9,11 @@ import { useAlertStore } from '../../store/alertStore';
 import { useSensorStore } from '../../store/sensorStore';
 import { useAuthStore } from '../../store/authStore';
 import { useHomeStore } from '../../store/homeStore';
+import { useSettingsStore } from '../../store/settingsStore';
 import { theme } from '../../constants/theme';
 import { useTheme } from '../../contexts/ThemeContext';
 import Button from '../../components/Button';
-import { X, ShieldAlert, CheckCircle2 } from 'lucide-react-native';
+import { X, ShieldAlert, CheckCircle2, Clock } from 'lucide-react-native';
 import { formatDistanceToNow } from 'date-fns';
 
 export default function ActiveAlertScreen({ navigation, route }: any) {
@@ -23,6 +23,7 @@ export default function ActiveAlertScreen({ navigation, route }: any) {
   const { getHomeById } = useHomeStore();
   const { alerts, acknowledgeAlert, resolveAlert } = useAlertStore();
   const { getSensorById } = useSensorStore();
+  const { stillnessTimeoutMinutes } = useSettingsStore();
 
   const alert = alerts.find(a => a.id === alertId);
   const sensor = getSensorById(alert?.sensorId || '');
@@ -64,11 +65,24 @@ export default function ActiveAlertScreen({ navigation, route }: any) {
   const isActive = alert.state === 'active';
   const isEscalated = alert.state === 'escalated';
   const isAck = alert.state === 'acknowledged';
-  
-  // Clean alert styling config
-  const mainBg = isAck ? colors.cardLightAmber : colors.cardLightRed;
-  const accentColor = isAck ? colors.warning : colors.danger;
-  const Icon = isAck ? CheckCircle2 : ShieldAlert;
+  const isStillness = alert.alertType === 'stillness';
+
+  // Stillness: amber scheme. Fall: red scheme. Acknowledged follows its original type.
+  const mainBg = isAck
+    ? (isStillness ? colors.cardLightAmber : colors.cardLightAmber)
+    : (isStillness ? colors.cardLightAmber : colors.cardLightRed);
+  const accentColor = isStillness ? colors.warning : (isAck ? colors.warning : colors.danger);
+  const Icon = isAck ? CheckCircle2 : (isStillness ? Clock : ShieldAlert);
+
+  // Title varies by type and state
+  const stateTitle = isAck
+    ? (isStillness ? 'ACKNOWLEDGED' : 'ACKNOWLEDGED')
+    : (isStillness ? 'STILLNESS DETECTED' : 'FALL DETECTED');
+
+  // Subtitle varies by type
+  const subtitle = isStillness
+    ? `No movement detected in ${sensor?.label} for ${stillnessTimeoutMinutes} minutes`
+    : `${sensor?.label} · ${home?.name}`;
 
   const handleAck = () => { if (user) acknowledgeAlert(alert.id, user.id); };
   const handleResolve = (outcome: 'real_fall' | 'false_alarm') => {
@@ -94,10 +108,8 @@ export default function ActiveAlertScreen({ navigation, route }: any) {
 
         {/* Status text */}
         <View style={styles.statusText}>
-          <Text style={[styles.stateLabel, { color: accentColor }]}>
-            {isEscalated ? 'ESCALATED' : isAck ? 'ACKNOWLEDGED' : 'FALL DETECTED'}
-          </Text>
-          <Text style={[styles.sensorLine, { color: accentColor, opacity: 0.8 }]}>{sensor?.label} · {home?.name}</Text>
+          <Text style={[styles.stateLabel, { color: accentColor }]}>{stateTitle}</Text>
+          <Text style={[styles.sensorLine, { color: accentColor, opacity: 0.8 }]}>{subtitle}</Text>
           <Text style={[styles.timeLine, { color: accentColor, opacity: 0.6 }]}>{formatDistanceToNow(new Date(alert.triggeredAt))} ago</Text>
         </View>
 

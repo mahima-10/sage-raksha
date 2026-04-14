@@ -1,8 +1,7 @@
 /**
- * ABOUTME: Sensor detail — soft colored status card hero without aggressive rings.
- * ABOUTME: Clean label-value pairs, Inter typography, elevation-only cards.
+ * ABOUTME: Sensor detail — soft colored status card hero with online/offline indicator.
+ * ABOUTME: Clean label-value pairs, linked caretakers, recent alerts, test alert buttons.
  */
-
 import React, { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Alert as RNAlert } from 'react-native';
@@ -21,7 +20,7 @@ export default function SensorDetailScreen({ navigation, route }: any) {
   const { colors } = useTheme();
   const { sensorId } = route.params;
   const { getSensorById, renameSensor, removeSensor } = useSensorStore();
-  const { getAlertsBySensorId } = useAlertStore();
+  const { getAlertsBySensorId, triggerAlert, triggerStillnessAlert } = useAlertStore();
   const { getHomeById } = useHomeStore();
 
   const sensor = getSensorById(sensorId);
@@ -56,9 +55,13 @@ export default function SensorDetailScreen({ navigation, route }: any) {
     ]);
   };
 
-  const handleTestAlert = () => {
-    const { useAlertStore: store } = require('../../store/alertStore');
-    const alertId = store.getState().triggerAlert(sensor.id, sensor.homeId);
+  const handleTestFall = () => {
+    const alertId = triggerAlert(sensor.id, sensor.homeId, 'fall');
+    navigation.navigate('ActiveAlert', { alertId });
+  };
+
+  const handleTestStillness = () => {
+    const alertId = triggerStillnessAlert(sensor.id, sensor.homeId);
     navigation.navigate('ActiveAlert', { alertId });
   };
 
@@ -141,7 +144,8 @@ export default function SensorDetailScreen({ navigation, route }: any) {
         )}
 
         <View style={{ marginTop: theme.spacing.section }}>
-          <Button title="Test Emergency Alert" variant="outline" onPress={handleTestAlert} style={{ marginBottom: theme.spacing.lg }} />
+          <Button title="Test Fall Alert" variant="outline" onPress={handleTestFall} style={{ marginBottom: theme.spacing.md }} />
+          <Button title="Test Stillness Alert" variant="outline" onPress={handleTestStillness} style={{ marginBottom: theme.spacing.lg }} />
           <TouchableOpacity style={styles.removeBtn} onPress={handleRemove}>
             <Text style={[styles.removeBtnText, { color: colors.textMuted }]}>Remove Sensor</Text>
           </TouchableOpacity>

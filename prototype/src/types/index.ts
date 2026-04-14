@@ -7,6 +7,7 @@ export type AppMode = 'independent' | 'facility';
 export type SensorStatus = 'online' | 'offline';
 export type AlertState = 'active' | 'escalated' | 'acknowledged' | 'resolved';
 export type AlertOutcome = 'real_fall' | 'false_alarm';
+export type AlertType = 'fall' | 'stillness';
 
 export interface User {
   id: string;
@@ -41,6 +42,7 @@ export interface Alert {
   id: string;
   sensorId: string;
   homeId: string;
+  alertType: AlertType;  // 'fall' or 'stillness'
   state: AlertState;
   triggeredAt: string;
   escalatedAt?: string;
