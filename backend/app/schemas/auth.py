@@ -4,7 +4,7 @@ from datetime import datetime
 from uuid import UUID
 
 class RequestOTPRequest(BaseModel):
-    phone: str = Field(..., description="Phone number")
+    phone: str = Field(..., description="Phone number", pattern=r"^\d{10}$")
 
 class RequestOTPResponse(BaseModel):
     message: str = "OTP sent"
