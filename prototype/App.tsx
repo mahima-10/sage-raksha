@@ -15,9 +15,12 @@ import {
   Inter_700Bold,
   Inter_900Black,
 } from '@expo-google-fonts/inter';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AppNavigator from './src/navigation/AppNavigator';
 import { ThemeProvider } from './src/contexts/ThemeContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const queryClient = new QueryClient();
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -37,11 +40,13 @@ export default function App() {
   }
 
   return (
-    <ThemeProvider>
-      <SafeAreaProvider>
-        <AppNavigator />
-      </SafeAreaProvider>
-    </ThemeProvider>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider>
+        <SafeAreaProvider>
+          <AppNavigator />
+        </SafeAreaProvider>
+      </ThemeProvider>
+    </QueryClientProvider>
   );
 }
 
