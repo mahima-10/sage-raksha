@@ -174,6 +174,30 @@ Exchanges a valid refresh token for a new access token.
 
 ---
 
+#### `POST /auth/logout`
+
+Logs out the current user by deleting the specified refresh token. The access token remains valid until its 15-minute expiry, but cannot be refreshed.
+
+**Auth:** JWT
+
+**Request:**
+```json
+{
+  "refresh_token": "eyJ..."
+}
+```
+
+**Response `200`:**
+```json
+{
+  "message": "Logged out successfully"
+}
+```
+
+**Errors:** `UNAUTHORIZED`
+
+---
+
 ### Users
 
 ---
@@ -367,6 +391,7 @@ Registers (pairs) a new sensor to a home. Called when the mobile app scans the Q
   "home_id": "hom_xyz789",
   "label": "Mom's Bathroom",
   "status": "offline",
+  "api_key": "sk_live_...",
   "last_heartbeat": null,
   "created_at": "2026-04-14T05:30:00Z"
 }
@@ -407,7 +432,28 @@ Returns detail for a single sensor.
 
 **Auth:** JWT (must be a member of the sensor's home)
 
-**Response `200`:** Single sensor object (same shape as list item above)
+**Response `200`:**
+```json
+{
+  "id": "sen_def456",
+  "hardware_id": "SEN-ABC123",
+  "home_id": "hom_xyz789",
+  "label": "Mom's Bathroom",
+  "status": "online",
+  "last_heartbeat": "2026-04-14T05:29:30Z",
+  "created_at": "2026-04-14T05:00:00Z",
+  "active_alert_count": 0,
+  "recent_alerts": [
+    {
+      "id": "alt_ghi789",
+      "alert_type": "fall",
+      "state": "resolved",
+      "triggered_at": "2026-04-14T04:00:00Z",
+      "outcome": "real_fall"
+    }
+  ]
+}
+```
 
 **Errors:** `NOT_FOUND`, `FORBIDDEN`
 

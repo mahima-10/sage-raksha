@@ -43,6 +43,44 @@ CREATE INDEX idx_users_phone ON users (phone);
 
 ---
 
+### `otp_codes`
+
+Temporary codes for phone verification.
+
+```sql
+CREATE TABLE otp_codes (
+    id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    phone        TEXT NOT NULL,
+    otp_hash     TEXT NOT NULL,                 -- bcrypt hash of the 6-digit code
+    attempts     INT NOT NULL DEFAULT 0,
+    expires_at   TIMESTAMPTZ NOT NULL,
+    created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX idx_otp_codes_phone ON otp_codes (phone);
+```
+
+---
+
+### `refresh_tokens`
+
+Long-lived sessions for authenticated users.
+
+```sql
+CREATE TABLE refresh_tokens (
+    id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id      UUID NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+    jti          TEXT NOT NULL UNIQUE,
+    expires_at   TIMESTAMPTZ NOT NULL,
+    created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX idx_refresh_tokens_user_id ON refresh_tokens (user_id);
+CREATE INDEX idx_refresh_tokens_jti ON refresh_tokens (jti);
+```
+
+---
+
 ### `homes`
 
 One row per monitored home.
@@ -98,6 +136,7 @@ CREATE TABLE sensors (
     hardware_id    TEXT NOT NULL UNIQUE,        -- From QR code, e.g. 'SEN-ABC123'
     home_id        UUID NOT NULL REFERENCES homes (id) ON DELETE CASCADE,
     label          TEXT NOT NULL,               -- User-assigned, e.g. 'Mom\'s Bathroom'
+    api_key_hash   TEXT NOT NULL,               -- bcrypt of the hardware API key
     status         TEXT NOT NULL DEFAULT 'offline'
                        CHECK (status IN ('online', 'offline')),
     last_heartbeat TIMESTAMPTZ,                 -- NULL until first heartbeat received
@@ -127,6 +166,7 @@ CREATE TABLE alerts (
     state           TEXT NOT NULL DEFAULT 'active'
                         CHECK (state IN ('active', 'escalated', 'acknowledged', 'resolved')),
     outcome         TEXT CHECK (outcome IN ('real_fall', 'false_alarm')),
+    stillness_timeout_minutes INT,              -- Recorded at creation time if alert_type = 'stillness'
 
     -- Timestamps
     triggered_at    TIMESTAMPTZ NOT NULL,       -- Device-reported event time
@@ -230,6 +270,7 @@ users
   └── joins → home_members (via home_id + user_id)
   └── acknowledges → alerts (alerts.acknowledged_by)
   └── resolves → alerts (alerts.resolved_by)
+  └── has many → refresh_tokens
 
 homes
   └── has many → home_members

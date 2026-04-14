@@ -47,19 +47,20 @@ Mobile App                          Backend                         SMS Provider
 | Length | 6 digits |
 | Expiry | 5 minutes |
 | Rate limit | 3 requests per phone per 10 minutes |
-| Storage | Redis: `otp:{phone}` → `{ hash, attempts, expires_at }` |
+| Storage | PostgreSQL `otp_codes` table |
 | Hash | bcrypt of the 6-digit code (not stored in plaintext) |
 | Max attempts | 5 incorrect guesses → OTP invalidated |
 
-OTPs are stored in Redis with a TTL, not in PostgreSQL. This prevents OTP rows from
-accumulating in the database.
+OTPs are stored in the PostgreSQL `otp_codes` table. Expired or used rows are cleaned up
+either lazily (when a new OTP is requested for the same phone) or via a periodic
+background job.
 
 ### Token Details
 
 | Token | expiry | Storage |
 |-------|--------|---------|
 | Access token | 15 minutes | Not stored — stateless JWT |
-| Refresh token | 7 days | Stored in `refresh_tokens` Redis set per user |
+| Refresh token | 7 days | Stored in PostgreSQL `refresh_tokens` table per user |
 
 #### Access Token Payload
 
@@ -86,7 +87,8 @@ accumulating in the database.
 ```
 
 `jti` (JWT ID) allows individual refresh tokens to be revoked (e.g. on logout) by
-deleting the `jti` from the Redis set.
+deleting the `jti` row from the `refresh_tokens` table. Expired refresh tokens are cleaned
+up on a daily schedule or lazily on token refresh.
 
 ### Token Refresh Flow
 
@@ -95,7 +97,8 @@ Mobile App                          Backend
     │                                   │
     ├── POST /auth/refresh-token ──────►│
     │   { refresh_token: "eyJ..." }     │── verify signature
-    │                                   │── check jti in Redis set
+    │                                   │── check jti in PostgreSQL
+    │                                   │── lazily delete expired tokens
     │                                   │── issue new access token
     │◄── 200 OK ────────────────────────┤
     │   { access_token: "eyJ..." }      │
@@ -107,7 +110,7 @@ apps with concurrent background refreshes.
 
 ### Logout
 
-Logout deletes the `jti` from Redis. The access token becomes effectively revoked
+Logout deletes the `jti` from the PostgreSQL `refresh_tokens` table. The access token becomes effectively revoked
 at next refresh since the short expiry (15 min) limits the window of misuse.
 
 ```
@@ -134,8 +137,7 @@ devices never need to exchange tokens.
 ### API Key Storage
 
 ```sql
--- Additional column on sensors table (Phase 2 migration)
-ALTER TABLE sensors ADD COLUMN api_key_hash TEXT NOT NULL;
+-- See sensors table in FRD-11
 ```
 
 The key is stored as a bcrypt hash. The plaintext key is only returned once (at
