@@ -24,8 +24,10 @@
 
 | FRD | Title | Status |
 |-----|-------|--------|
-| [09](./09-api-specification.md) | API Specification | Planned |
+| [09](./09-api-specification.md) | API Specification | Draft |
 | [10](./10-prototype-specifications.md) | Prototype Specifications | Draft |
+| [11](./11-database-schema.md) | Database Schema | Draft |
+| [12](./12-authentication.md) | Authentication & Authorization | Draft |
 
 ## P2 — Future
 
@@ -39,3 +41,4 @@
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
 | 1.0 | 2026-04-13 | Ivy & Caine | Initial index |
+| 1.1 | 2026-04-14 | Ivy & Caine | Add FRD-09 API spec, FRD-11 DB schema, FRD-12 Auth |
