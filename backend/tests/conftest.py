@@ -1,6 +1,6 @@
 import pytest
 import pytest_asyncio
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from sqlalchemy.pool import NullPool
 from httpx import AsyncClient, ASGITransport
 
@@ -41,3 +41,19 @@ async def ac() -> AsyncClient:
 async def db_session():
     async with TestingSessionLocal() as session:
         yield session
+
+async def create_test_user_and_token(db_session: AsyncSession, phone: str = "1234567890"):
+    from app.models.user import User
+    from app.utils.security import create_access_token
+    from sqlalchemy import select
+    
+    result = await db_session.execute(select(User).where(User.phone == phone))
+    user = result.scalars().first()
+    if not user:
+        user = User(phone=phone)
+        db_session.add(user)
+        await db_session.commit()
+        await db_session.refresh(user)
+        
+    token = create_access_token({"sub": str(user.id)})
+    return user, token
