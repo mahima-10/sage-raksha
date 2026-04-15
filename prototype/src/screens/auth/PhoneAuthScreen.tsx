@@ -12,6 +12,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 import Button from '../../components/Button';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AuthStackParamList } from '../../types';
+import { useSensorStore } from '../../store/sensorStore';
 
 type Props = { navigation: NativeStackNavigationProp<AuthStackParamList, 'PhoneAuth'> };
 
@@ -40,11 +41,24 @@ export default function PhoneAuthScreen({ navigation }: Props) {
   };
 
   const handleVerify = async () => {
-    if (otp.length < 6) return;
+    if (otp.length < 6 || loading) return;
     setLoading(true);
     try {
       await verifyOtp(phone, otp);
-      // navigation.navigate('CreateHome'); // Authenticated state in AppNavigator will handle switch
+      
+      // Explicit navigation based on state
+      const user = useAuthStore.getState().user;
+      const getSensorsByHomeId = useSensorStore.getState().getSensorsByHomeId;
+      
+      if (!user?.linkedHomeIds || user.linkedHomeIds.length === 0) {
+        navigation.navigate('CreateHome');
+      } else {
+        const sensors = getSensorsByHomeId(user.linkedHomeIds[0]);
+        if (sensors.length === 0) {
+          navigation.navigate('SensorPairing');
+        }
+        // If they have sensors, AppNavigator will switch stack to MainTabs automatically
+      }
     } catch (error: any) {
       console.error(error);
       const detail = error.response?.data?.detail;

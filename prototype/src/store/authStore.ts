@@ -36,6 +36,8 @@ export const useAuthStore = create<AuthState>()(
       },
       
       verifyOtp: async (phone, otp) => {
+        if (get().isAuthenticated) return;
+        
         const { user } = await authApi.verifyOtp(phone, otp);
         set({
           user,
