@@ -26,16 +26,21 @@ export default function CreateHomeScreen({ navigation }: Props) {
   const { addLinkedHome } = useAuthStore();
   const [loading, setLoading] = useState(false);
 
-  const handleCreate = () => {
+  const handleCreate = async () => {
     if (homeName.trim().length < 2) return;
     setLoading(true);
-    setTimeout(() => {
-      const homeId = `h-${Date.now()}`;
-      addHome({ id: homeId, name: homeName.trim(), createdBy: 'unknown', createdAt: new Date().toISOString() });
-      addLinkedHome(homeId);
-      setLoading(false);
+    try {
+      const home = await homesApi.createHome(homeName.trim());
+      addHome(home);
+      addLinkedHome(home.id);
       navigation.navigate('SensorPairing', { fromSettings: false });
-    }, 800);
+    } catch (error: any) {
+      const detail = error.response?.data?.detail;
+      const message = typeof detail === 'string' ? detail : detail?.message || 'Failed to create home.';
+      Alert.alert('Error', message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleJoin = async () => {

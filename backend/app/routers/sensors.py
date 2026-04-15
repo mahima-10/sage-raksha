@@ -41,7 +41,11 @@ async def create_sensor(
     await db.refresh(sensor)
     
     # We assign api_key attribute temporarily to be picked up by the Pydantic schema Model
-    sensor.api_key = api_key_raw 
+    sensor.api_key = api_key_raw
+    print(f"=============================")
+    print(f"SENSOR PAIRED: {data.hardware_id}")
+    print(f"API KEY: {api_key_raw}")
+    print(f"=============================")
     sensor.active_alert_count = 0
     sensor.recent_alerts = []
     

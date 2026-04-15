@@ -7,7 +7,7 @@ import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
 
 // Hardcoded Mac IP as per requirements
-const BASE_URL = 'http://172.20.10.3:8002/api/v1';
+const BASE_URL = 'https://sage-raksha-api.onrender.com/api/v1';
 
 const ACCESS_TOKEN_KEY = 'sage_access_token';
 const REFRESH_TOKEN_KEY = 'sage_refresh_token';
